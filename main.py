@@ -92,6 +92,14 @@ class NoteApp(QMainWindow):
             
                 font = QFont(font_name, font_size)
                 self.textEdit.setFont(font)
+
+                window_x = settings.get("window_x", 100)
+                window_y = settings.get("window_y", 100)
+                self.move(window_x, window_y)
+
+                window_width = settings.get("window_width", 600)
+                window_height = settings.get("window_height", 1000)
+                self.resize(window_width, window_height)
         except FileNotFoundError:
             pass
         except json.JSONDecodeError:
@@ -103,6 +111,15 @@ class NoteApp(QMainWindow):
             "font_name": font.family(),
             "font_size": font.pointSize()
         }
+
+        position = self.pos()
+        settings["window_x"] = position.x()
+        settings["window_y"] = position.y()
+
+        width, height = self.size().width(), self.size().height()
+        settings["window_width"] = width
+        settings["window_height"] = height
+
         with open(settingsPath, "w") as f:
             json.dump(settings, f)
 
@@ -129,6 +146,10 @@ class NoteApp(QMainWindow):
 
         dialog.setLayout(layout)
         dialog.exec()  # 다이얼로그 실행
+
+    def closeEvent(self, event):
+        self.saveSettings()
+        event.accept()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
